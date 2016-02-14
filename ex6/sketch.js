@@ -1,3 +1,24 @@
+// Define any global variables here
+// (BUT don't call any p5 methods here;
+//  call them in the functions below!)
+// 
+// var SOCKET_URL = 'wss://fierce-plains-17880.herokuapp.com/';
+// var TEAM_NAME  = '';
+// var socket; 
+// 
+// function setup() {
+//   createCanvas(windowWidth, windowHeight); // Use the full browser window
+//   socket = io(SOCKET_URL + TEAM_NAME); // Open a socket connection to the server.
+//   Additional setup goes here. E.g., registering socket.on handlers. 
+// }
+// 
+// function draw() {
+//   Put your drawing code here
+// }
+// 
+// Define any additional helper functions here
+
+
 var ballArray = [];//create a array to store the ball
 var newHue = 100;//preset the hue to a fix value to avoid null exception
 var pitch1 = [];//create a array to store the sound file for pitch 1
@@ -9,12 +30,10 @@ var fa1;
 var sol1;
 var la1;
 var til1;
-var pitch = 0;
+var pitchSet = 0;
 var backgroundColor = 220;
 var counter = 0;
 var bgcolor = [];
-
-var tone;
 var midnight;
 var plum;
 var grey;
@@ -22,17 +41,9 @@ var forest;
 var lightgrey;
 var peach;
 var lilac; 
-
-
-// Define any global variables here
-// (BUT don't call any p5 methods here;
-//  call them in the functions below!)
-
 var SOCKET_URL = 'wss://fierce-plains-17880.herokuapp.com/';
 var TEAM_NAME  = 'dreamcatcher';
 var socket; 
-
-
 
 // var soundKey = 0; causes one tone to be played 
 
@@ -41,21 +52,31 @@ var socket;
 * If a preload function is defined, setup() will wait until 
 * any load calls within have finished. 
 **/
-function preload(){
+
+function preload() {
+  var pitchset = [];
+  pitch1.push(pitchset);
+  //Sound 
   do1 = loadSound('music/01do.mov');
-  pitch1.push(do1);
+  pitchset.push(do1);
   re1 = loadSound('music/01re.mov');
-  pitch1.push(re1);
+  pitchset.push(re1);
    mi1 = loadSound('music/01mi.mov');
-  pitch1.push(mi1);
+  pitchset.push(mi1);
    fa1 = loadSound('music/01fa.mov');
-  pitch1.push(fa1);
+  pitchset.push(fa1);
    sol1 = loadSound('music/01sol.mov');
-  pitch1.push(sol1);
+  pitchset.push(sol1);
   la1 = loadSound('music/01la.mov');
-  pitch1.push(la1);
+  pitchset.push(la1);
    ti1 = loadSound('music/01ti.mov');
-  pitch1.push(ti1);
+  pitchset.push(ti1);
+  
+  //pitchset = [];
+  // pitch1.push(pitchset);
+  // pitchset.push(loadSound('music/'));
+  
+  //Background Color
   midnight = color('hsl(255,19%, 25%)');
   plum = color('hsl(349, 24%, 35%)');
   grey = color('hsl(219, 0%, 19%)');
@@ -63,16 +84,14 @@ function preload(){
   lightgrey = color('hsl(113, 0%, 73%)');
   peach = color ('hsl(22, 100%, 70%)');
   lilac = color('hsl(256,37%, 77%)');
-  
-  bgcolor.push(midnight);
-  console.log(midnight);
+
+  console.log(midnight); //first color presented
   bgcolor.push(plum);
   bgcolor.push(grey);
   bgcolor.push(forest);
   bgcolor.push(lightgrey);
   bgcolor.push(peach);
   bgcolor.push(lilac);  
-  
 }
 
 /*
@@ -81,49 +100,24 @@ function preload(){
 * screen size and background color and to load media such as 
 * images and fonts as the program starts. 
 * http://p5js.org/reference/#/p5/setup
-*
 */
-function setup() {
+
+function setup(){
   canvas = createCanvas(windowWidth, windowHeight);
- 
-   socket = io(SOCKET_URL + TEAM_NAME); // Open a socket connection to the server.
-  // Additional setup goes here. E.g., registering socket.on handlers. 
-  
-
-  socket.on("create", function(mouseX, mouseY, toneP){
-      tone = toneP;
-      createBall(tone);
-    });
-  // socket.on("clear", function());
-  socket.on("background", function(counterP){
-    backgroundColor = bgcolor[counterP];
-  });
-   // socket.on("background", mouseClicked());
-
-  //1. Create ball object
-  // createBall();
-  
-
   frameRate(30);
+  socket = io(SOCKET_URL + TEAM_NAME); // Open a socket connection to the server.
+  // Additional setup goes here. E.g., registering socket.on handlers.  
+  socket.on('ball', createBallLocal);
+  // socket.on('keypressed',keypressed);
 }
 
-function draw() {
-  //setup background color
-  // background('black');
-  // console.log(backgroundColor);
+function draw(){
   background(backgroundColor);
 
-  // var count = 0;
-  console.log(ballArray);
   for (var i=0; i<ballArray.length; i++){
     ballArray[i].bounce3();
-    // ballArray[i].move();
     ballArray[i].display();
-    // count++;
-  
   }
-
-
 }
 
 function windowResized() {
@@ -144,127 +138,107 @@ function windowResized() {
 }
 
 //Create a number of ball based on the keypress value received from keyPressed().
-function createBall(numBall){
-  for (var i=0; i<numBall; i++){
-    var newBall = new Ball(mouseX, mouseY, numBall-1);//create a new ball
+function createBall(pitch){ //used to be (numball)
+  createBallLocal(pitch);
+  createBallRemote(pitch);
+}
+
+function createBallLocal(pitch) {
+  // for (var i=0; i<numBall; i++){
+    var newBall = new Ball(mouseX, mouseY, pitch+1, pitch1[pitchSet][pitch]);//create a new ball
     ballArray.push(newBall);//put into the array
-  }
+  // }
   
-  if (ballArray.length > 15) {
-    var diff = ballArray.length - 15;
+  if (ballArray.length > 30) {
+    var diff = ballArray.length - 30;
     for (var i=0; i<diff; i++){
       ballArray.shift();
     }
   }
 }
 
+function createBallRemote(pitch) {
+  socket.emit('ball', pitch);
+}
+
 function mouseClicked(){
-
-
     if(counter === bgcolor.length-1){
       counter = 0;
-     
     }
-   
     backgroundColor = bgcolor[counter];
-    socket.emit("background", counter);
     counter++;
- 
-  
 }
 
 //Handle keyPressEvent
 function keyPressed(){
   //https://css-tricks.com/snippets/javascript/javascript-keycodes/
-  var tone;
   switch(keyCode){
     case 49:{//Number:1
-      tone = 1;
-      // createBall(1);   
+      createBall(0);
+      // soundKey = 1;
+      // setTimeout(playSound(0), 2000);
       break;
     }
     case 50: {//Number:2
-       tone = 2;
-       // createBall(2);
+       createBall(1);
         // soundKey = 2;
         // playSound(1);
        break;
      }
      case 51: {//Number:3
-        tone = 3;
-       // createBall(3);
+       createBall(2);
       // playSound(2);
         // soundKey = 3;
        break;
      }
      case 52: {//Number: 4
-        tone = 4;
-       // createBall(4);
+       createBall(3);
         // playSound(3);
           // soundKey = 4;
        break;
      }
      case 53: {//Number: 5
-        tone = 5;
-       // createBall(5);
+       createBall(4);
         // playSound(4);
           // soundKey = 5;
        break;
      }
      case 54: {//Number: 6
-        tone = 6;
-       // createBall(6);
-   
+       createBall(5);
+        // playSound(5);
+          soundKey = 6;
        break;
      }
      case 55: {//Number: 7
-        tone = 7;
-       // createBall(7);
+       createBall(6);
         // playSound(6);
           // soundKey = 7;
        break;
      }
-    // case 56: {//Number: 8
-    //   createBall(8);
-    //     // playSound(0);
-    //     // soundKey = 8;
-       
-    //   break;
-    // }
-    // case 57: {//Number: 9
-    //   createBall(9);
-    //   // playSound(1);
-    //   break;
-    // }
-    //   case 32: {//Number: space
-    //   //change color    
-    //   // getHue();old
-    //   backgroundColor = color(random(255), random(255), random(255));
-    //   break;
-    // }
-     
-      case 27: {//Number: escape
+     case 27: {//Number: escape
         //clear the ball array content one by one
         while(ballArray.length){
-        ballArray.pop();
-      }
-      // socket.emit('clear', "clear balls");
-      // getHue();//change the color
-      //TODO: stop the music
-      break;
+          ballArray.pop();
+        }
+      
+        getHue();//change the color
+        //TODO: stop the music
+        break;
      }
+    case 32: {
+      pitchSet++;
+      if (pitchSet == pitch1.length) {
+        pitchSet = 0;
+      }
+      break;
+    }
   }
-  if(tone!=0){
-    createBall(tone);
-    socket.emit('create', mouseX, mouseY, tone);
-    // socket.send(mouseX+" "+mouseY" "+tone);
-  };
 }
 
 //A Helper function to play sound
-function playSound(num){
-  pitch1[num].setVolume(0.1);
-  pitch1[num].play();//http://p5js.org/reference/#/p5.SoundFile/play
+function playSound(pitch){
+  pitch.setVolume(0.1);
+  pitch.play();//http://p5js.org/reference/#/p5.SoundFile/play
 }
 
 //A Helper function to get a hue value to create mono color 
@@ -279,10 +253,10 @@ function changeAllColor(){
     var s = random(100);  
     var l = random(40, 90);//avoid the high saturation
     var a = random(0.5,1); 
-
     var c = color('hsla('+h+','+s+'%,'+l+'%,'+a+')');
     return c;
 }
+
 //A Helper function to create a color with the same hue value
 function changeAllColor(keyColor){
     var h;
@@ -290,15 +264,12 @@ function changeAllColor(keyColor){
   switch(keyColor){
     case 1: {//key pressed 1;
        h = 8; //red
-     
       break;
      }case 2: {//key pressed 1;
        h = 23; //orange
-
        break;
      }case 3: {//key pressed 1;
        h = 48; //yellow
-
        break;
      }case 4: {//key pressed 1;
        h = 81; //green
@@ -316,13 +287,11 @@ function changeAllColor(keyColor){
     
   }
   
-  
     // var h = newHue;//get the hue value
     //http://hslpicker.com/#25742e
    
     var l = random(40, 90);//avoid the high saturation
     var a = random(0.5,1); 
-
     var c = color('hsla('+h+','+s+'%,'+l+'%,'+a+')');
     return c;
 }
@@ -330,9 +299,10 @@ function changeAllColor(keyColor){
 //The Ball Constructor
 //Bounce ball with gravity: http://www.openprocessing.org/sketch/47766
 //Bounce ball and change color when hits the edges: http://www.openprocessing.org/sketch/110555
-function Ball(x, y, pitch) {
+function Ball(x, y, number, pitch) {
   //set random starting point
   // var diameter = random(50, 100);
+  playSound(pitch); //new plays sound on ball creation 
   this.diameter = random(10,100);
   if (x > width - this.diameter || x < this.diameter) {
     x = random(this.diameter, width - this.diameter);
@@ -350,7 +320,7 @@ function Ball(x, y, pitch) {
   var vy = random(5,20);
   
   //define the color for the ball
-  this.color = changeAllColor(pitch+1);
+  this.color = changeAllColor(number);
 
   this.speed = 0.7;
 
