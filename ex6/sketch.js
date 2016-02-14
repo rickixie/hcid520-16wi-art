@@ -14,6 +14,7 @@ var backgroundColor = 220;
 var counter = 0;
 var bgcolor = [];
 
+var tone;
 var midnight;
 var plum;
 var grey;
@@ -89,11 +90,18 @@ function setup() {
   // Additional setup goes here. E.g., registering socket.on handlers. 
   
 
-  socket.on("create", keyPressed());
-  socket.on("clear", keyPressed());
-  socket.on("background", mouseClicked());
+  socket.on("create", function(mouseX, mouseY, toneP){
+      tone = toneP;
+      createBall(tone);
+    });
+  // socket.on("clear", function());
+  socket.on("background", function(counterP){
+    backgroundColor = bgcolor[counterP];
+  });
+   // socket.on("background", mouseClicked());
+
   //1. Create ball object
-  createBall();
+  // createBall();
   
 
   frameRate(30);
@@ -102,9 +110,11 @@ function setup() {
 function draw() {
   //setup background color
   // background('black');
+  // console.log(backgroundColor);
   background(backgroundColor);
 
   // var count = 0;
+  console.log(ballArray);
   for (var i=0; i<ballArray.length; i++){
     ballArray[i].bounce3();
     // ballArray[i].move();
@@ -112,6 +122,7 @@ function draw() {
     // count++;
   
   }
+
 
 }
 
@@ -237,7 +248,7 @@ function keyPressed(){
         while(ballArray.length){
         ballArray.pop();
       }
-      socket.emit('clear', "clear balls");
+      // socket.emit('clear', "clear balls");
       // getHue();//change the color
       //TODO: stop the music
       break;
@@ -245,8 +256,9 @@ function keyPressed(){
   }
   if(tone!=0){
     createBall(tone);
-    socket.emit('create', tone);
-  }
+    socket.emit('create', mouseX, mouseY, tone);
+    // socket.send(mouseX+" "+mouseY" "+tone);
+  };
 }
 
 //A Helper function to play sound
