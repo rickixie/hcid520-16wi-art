@@ -124,8 +124,13 @@ function draw(){
   //draw clouds
   for (var j=0; j<clouds.length; j++){
     // clouds[j].flash();
+      clouds[j].flash();
+    }   
     clouds[j].display(); 
   }
+
+
+
   
 }
 
@@ -160,7 +165,7 @@ function createBall(pitch){ //used to be (numball)
 
 function createBallLocal(pitch) {
   // for (var i=0; i<numBall; i++){
-    var newBall = new Ball(mouseX, mouseY, pitch+1, pitch1[pitchSet][pitch]);//create a new ball
+    var newBall = new Ball(mouseX, mouseY, pitch+1, pitch1[0][pitch]);//create a new ball
     ballArray.push(newBall);//put into the array
   // }
   
@@ -296,17 +301,19 @@ function keyPressed(){
       }
       break;
     }
-    case 18: {//Alt
-    for(var i=0; i<clouds.length; i++){
-      clouds[i].flash();
-      clouds[i].display();
-    } 
+    // case 18: {//Alt
+    // for(var i=0; i<clouds.length; i++){
+    //   clouds[i].flash();
+    //   clouds[i].display();
+    // } 
 
       // createCloud(mouseX, mouseY);
-      break;
-    }
+    //   break;
+    // }
   }
 }
+
+
 
 //A Helper function to play sound
 function playSound(pitch){
@@ -486,6 +493,7 @@ function lightning(x,y){
      line (0, 0, g, h);
      pop();
    }
+
    
 }
 
