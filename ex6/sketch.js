@@ -185,8 +185,10 @@
     if (clouds.length > 5) {
       var diff = clouds.length - 5;
       for (var j=0; j<diff; j++){
-        clouds[0].sound.stop();//stop the cloud's sound when it is gone
-        clouds.shift();
+        // clouds[0].sound.stop();//stop the cloud's sound when it is gone <--didn't work over 5;
+        var cloudE = clouds.shift();
+        // console.log(cloudE);
+        // cloudE.sound.stop();
         // lts.shift();
       }
     }
@@ -278,7 +280,7 @@
             clouds.pop();
           }
           getHue();//change the color
-          //TODO: stop the music
+         
           break;
       }
     }
@@ -419,6 +421,7 @@
     ellipse(this.x + 70, -20 + this.y, 50, 50);
     ellipse(this.x + 35, -30 + this.y, 50, 50);
     ellipse(this.x, -20 + this.y, 50, 50);
+    // this.sound.loop();
     //midpoint --> (this.x+35, this.y-15);
     };
 
