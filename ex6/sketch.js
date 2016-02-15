@@ -178,15 +178,16 @@ function createBallRemote(pitch) {
 
 
 //Create cloud based on mouse click.
-function createCloud(){ 
-  createCloudLocal();
-  createCloudRemote();
+function createCloud(x, y){ 
+  createCloudLocal(x,y);
+  createCloudRemote(x,y);
 }
 
 
 
-function createCloudLocal(){
-  var newCloud = new cloud (mouseX, mouseY);
+function createCloudLocal(x, y){
+  
+  var newCloud = new cloud (x, y);
   clouds.push(newCloud);
 
    if (clouds.length > 4) {
@@ -197,13 +198,13 @@ function createCloudLocal(){
   }
 }
 
-function createCloudRemote(){
-  socket.emit('createCloud', mouseX, mouseY);
+function createCloudRemote(x, y){
+  socket.emit('createCloud', x, y);
 }
 
 
 function mouseClicked(){
-  createCloud();
+  createCloud(mouseX, mouseY);
 }
 
 
