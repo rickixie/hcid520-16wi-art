@@ -31,16 +31,16 @@ var sol1;
 var la1;
 var til1;
 var pitchSet = 0;
-var backgroundColor = 220;
+// var backgroundColor = 220;
 var counter = 0;
-var bgcolor = [];
-var midnight;
-var plum;
-var grey;
-var forest;
-var lightgrey;
-var peach;
-var lilac; 
+// var bgcolor = [];
+// var midnight;
+// var plum;
+// var grey;
+// var forest;
+// var lightgrey;
+// var peach;
+// var lilac; 
 var SOCKET_URL = 'wss://fierce-plains-17880.herokuapp.com/';
 var TEAM_NAME  = 'dreamcatcher';
 var socket; 
@@ -77,21 +77,21 @@ function preload() {
   // pitchset.push(loadSound('music/'));
   
   //Background Color
-  midnight = color('hsl(255,19%, 25%)');
-  plum = color('hsl(349, 24%, 35%)');
-  grey = color('hsl(219, 0%, 19%)');
-  forest = color('hsl(108, 34%, 37%)');
-  lightgrey = color('hsl(113, 0%, 73%)');
-  peach = color ('hsl(22, 100%, 70%)');
-  lilac = color('hsl(256,37%, 77%)');
+  // midnight = color('hsl(255,19%, 25%)');
+  // plum = color('hsl(349, 24%, 35%)');
+  // grey = color('hsl(219, 0%, 19%)');
+  // forest = color('hsl(108, 34%, 37%)');
+  // lightgrey = color('hsl(113, 0%, 73%)');
+  // peach = color ('hsl(22, 100%, 70%)');
+  // lilac = color('hsl(256,37%, 77%)');
 
-  console.log(midnight); //first color presented
-  bgcolor.push(plum);
-  bgcolor.push(grey);
-  bgcolor.push(forest);
-  bgcolor.push(lightgrey);
-  bgcolor.push(peach);
-  bgcolor.push(lilac);  
+  // console.log(midnight); //first color presented
+  // bgcolor.push(plum);
+  // bgcolor.push(grey);
+  // bgcolor.push(forest);
+  // bgcolor.push(lightgrey);
+  // bgcolor.push(peach);
+  // bgcolor.push(lilac);  
 }
 
 /*
@@ -112,7 +112,8 @@ function setup(){
 }
 
 function draw(){
-  background(backgroundColor);
+  // background(backgroundColor);
+  background('hsl(0,0%, 18%)');
 
   for (var i=0; i<ballArray.length; i++){
     ballArray[i].bounce3();
@@ -161,13 +162,13 @@ function createBallRemote(pitch) {
   socket.emit('ball', pitch);
 }
 
-function mouseClicked(){
-    if(counter === bgcolor.length-1){
-      counter = 0;
-    }
-    backgroundColor = bgcolor[counter];
-    counter++;
-}
+// function mouseClicked(){
+//     if(counter === bgcolor.length-1){
+//       counter = 0;
+//     }
+//     backgroundColor = bgcolor[counter];
+//     counter++;
+// }
 
 //Handle keyPressEvent
 function keyPressed(){
@@ -263,25 +264,25 @@ function changeAllColor(keyColor){
     var s = 90;
   switch(keyColor){
     case 1: {//key pressed 1;
-       h = 8; //red
+       h = 190;
       break;
-     }case 2: {//key pressed 1;
-       h = 23; //orange
+     }case 2: {//key pressed 2;
+       h = 200; 
        break;
-     }case 3: {//key pressed 1;
-       h = 48; //yellow
+     }case 3: {//key pressed 3;
+       h = 210; 
        break;
-     }case 4: {//key pressed 1;
-       h = 81; //green
+     }case 4: {//key pressed 4;
+       h = 220; 
        break;
-     }case 5: {//key pressed 1;
-       h = 164; //cyan
+     }case 5: {//key pressed 5;
+       h = 230; 
        break;
-     }case 6: {//key pressed 1;
-       h = 196; //blue
+     }case 6: {//key pressed 6;
+       h = 240; 
        break;
-     }case 7: {//key pressed 1;
-       h = 227;//dark-blue
+     }case 7: {//key pressed 7;
+       h = 250;
        break;
      }
     
@@ -303,7 +304,8 @@ function Ball(x, y, number, pitch) {
   //set random starting point
   // var diameter = random(50, 100);
   playSound(pitch); //new plays sound on ball creation 
-  this.diameter = random(10,100);
+  this.diameter = 10;
+  // this.diameter = random(1,10); //old 10, 100
   if (x > width - this.diameter || x < this.diameter) {
     x = random(this.diameter, width - this.diameter);
   }
@@ -316,18 +318,14 @@ function Ball(x, y, number, pitch) {
   
   //set a random diameter size
   var radius = this.diameter/2;
-  var vx = random(5,20);
-  var vy = random(5,20);
+  var vx = 10;
+  var vy = 10;
+  // var vx = random(5,10);
+  // var vy = random(5,10);
   
   //define the color for the ball
   this.color = changeAllColor(number);
 
-  this.speed = 0.7;
-
-  this.move = function() {
-    this.x += random(-this.speed, this.speed);
-    this.y += random(-this.speed, this.speed);
-  };
     
   this.display = function() {
     fill(this.color);//only fill the color when you create the ball
@@ -336,15 +334,6 @@ function Ball(x, y, number, pitch) {
    
   };
 
-  //distance
-  var xdistance = this.diameter/2;
-  var ydistance = this.diameter/2;
-  //speed
-  var speedY = 20;
-  var speedX = 20;
-  //direction
-  var ydirection = 1;
-  var xdirection = 1;
   
   this.bounce3 = function(){//http://www.openprocessing.org/sketch/218262
     if (((this.x + vx) > width - radius) || ((this.x) < radius)) {
@@ -364,16 +353,5 @@ function Ball(x, y, number, pitch) {
   //TODO: Collision
   //http://p5play.molleindustria.org/examples/index.html?fileName=collisions4.js
   
-  this.bounce = function(){
-    if ((this.x+speedX) > width-(this.diameter)/2 || (this.x+speedX) < this.diameter/2) {
-      speedX = -speedX;
-    }
-  
-    if ((this.y+speedY) > height-(this.diameter)/2 ||(this.y+speedY)<(this.diameter)/2) {
-      speedY= -speedY;
-    }
-     
-    this.x = this.x + speedX;
-    this.y = this.y + speedY;
-  }
+
 }
