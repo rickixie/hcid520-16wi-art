@@ -1,99 +1,85 @@
-// Define any global variables here
-// (BUT don't call any p5 methods here;
-//  call them in the functions below!)
-// 
-// var SOCKET_URL = 'wss://fierce-plains-17880.herokuapp.com/';
-// var TEAM_NAME  = '';
-// var socket; 
-// 
-// function setup() {
-//   createCanvas(windowWidth, windowHeight); // Use the full browser window
-//   socket = io(SOCKET_URL + TEAM_NAME); // Open a socket connection to the server.
-//   Additional setup goes here. E.g., registering socket.on handlers. 
-// }
-// 
-// function draw() {
-//   Put your drawing code here
-// }
-// 
-// Define any additional helper functions here
-
-
 var ballArray = [];//create a array to store the ball
+var clouds = [];//create a array for cloud
 var newHue = 100;//preset the hue to a fix value to avoid null exception
 var pitch1 = [];//create a array to store the sound file for pitch 1
 //initiate sound files 
-var do1;
-var re1;
-var mi1;
-var fa1;
-var sol1;
-var la1;
-var til1;
-var pitchSet = 0;
+// var do1;
+// var re1;
+// var mi1;
+// var fa1;
+// var sol1;
+// var la1;
+// var til1;
+var pitchSetIndex = 0;
 // var backgroundColor = 220;
 var counter = 0;
-// var bgcolor = [];
-// var midnight;
-// var plum;
-// var grey;
-// var forest;
-// var lightgrey;
-// var peach;
-// var lilac; 
+
 var SOCKET_URL = 'wss://fierce-plains-17880.herokuapp.com/';
 var TEAM_NAME  = 'dreamcatcher';
 var socket; 
-
+//shapes
+var lt = [];
 // var soundKey = 0; causes one tone to be played 
-
 /* preload the sound to use before the program run, 
 * it is cused to handle asynchronous loading of external files. 
 * If a preload function is defined, setup() will wait until 
 * any load calls within have finished. 
 **/
-
 function preload() {
-  var pitchset = [];
-  pitch1.push(pitchset);
+  
+  //load ball sounds
+  var ballpitchset = [];
+  pitch1.push(ballpitchset);
   //Sound 
   do1 = loadSound('music/01do.mov');
-  pitchset.push(do1);
+  ballpitchset.push(do1);//position 0
   re1 = loadSound('music/01re.mov');
-  pitchset.push(re1);
-   mi1 = loadSound('music/01mi.mov');
-  pitchset.push(mi1);
-   fa1 = loadSound('music/01fa.mov');
-  pitchset.push(fa1);
-   sol1 = loadSound('music/01sol.mov');
-  pitchset.push(sol1);
+  ballpitchset.push(re1);//position 1
+  mi1 = loadSound('music/01mi.mov');
+  ballpitchset.push(mi1);//position 2
+  fa1 = loadSound('music/01fa.mov');
+  ballpitchset.push(fa1);//position 3
+  sol1 = loadSound('music/01sol.mov');
+  ballpitchset.push(sol1);//position 4
   la1 = loadSound('music/01la.mov');
-  pitchset.push(la1);
-   ti1 = loadSound('music/01ti.mov');
-  pitchset.push(ti1);
+  ballpitchset.push(la1);//position 5
+  ti1 = loadSound('music/01ti.mov');
+  ballpitchset.push(ti1);//position 6
   
-  //pitchset = [];
-  // pitch1.push(pitchset);
-  // pitchset.push(loadSound('music/'));
+  //load cloud sounds
+  var cloudpitchset = [];
+  pitch1.push(cloudpitchset);
+  c1 = loadSound ('music/C1.mov'); //(c=cloud)
+  cloudpitchset.push(c1);
+  c2 = loadSound ('music/C2.mov');
+   cloudpitchset.push(c2);
+  c3 = loadSound ('music/C3.mov');
+   cloudpitchset.push(c3);
+  c4 = loadSound ('music/C4.mov');
+   cloudpitchset.push(c4);
+  c5 = loadSound ('music/C5.mov');
+   cloudpitchset.push(c5);
+   
+  var lightningpitchset = [];
+  pitch1.push(lightningpitchset); 
+  l1 = loadSound ('music/L1.mov'); //(l=lighting)
+  lightningpitchset.push(l1);
+  l2 = loadSound ('music/L2.mov');
+  lightningpitchset.push(l2);
+  l3 = loadSound ('music/L3.mov');
+  lightningpitchset.push(l3);
   
-  //Background Color
-  // midnight = color('hsl(255,19%, 25%)');
-  // plum = color('hsl(349, 24%, 35%)');
-  // grey = color('hsl(219, 0%, 19%)');
-  // forest = color('hsl(108, 34%, 37%)');
-  // lightgrey = color('hsl(113, 0%, 73%)');
-  // peach = color ('hsl(22, 100%, 70%)');
-  // lilac = color('hsl(256,37%, 77%)');
-
-  // console.log(midnight); //first color presented
-  // bgcolor.push(plum);
-  // bgcolor.push(grey);
-  // bgcolor.push(forest);
-  // bgcolor.push(lightgrey);
-  // bgcolor.push(peach);
-  // bgcolor.push(lilac);  
+  
+  // var lt1= loadImage("img/lightning-02.svg");
+  // lt.push(lt1);
+  // var lt2= loadImage("img/lightning-03.svg");
+  // lt.push(lt2);
+  // var lt3= loadImage("img/lightning-04.svg");
+  // lt.push(lt3);
+  
+  // var lt1= loadImage("img/lightnight-02.svg");
+  
 }
-
 /*
 * The setup() function is called once when the program starts. 
 * It's used to define initial environment properties such as 
@@ -101,24 +87,30 @@ function preload() {
 * images and fonts as the program starts. 
 * http://p5js.org/reference/#/p5/setup
 */
-
 function setup(){
   canvas = createCanvas(windowWidth, windowHeight);
   frameRate(30);
+  // console.log(lt);
   socket = io(SOCKET_URL + TEAM_NAME); // Open a socket connection to the server.
   // Additional setup goes here. E.g., registering socket.on handlers.  
-  socket.on('ball', createBallLocal);
-  // socket.on('keypressed',keypressed);
+  socket.on('createBall', createBallLocal);
+  socket.on('createCloud', createCloudLocal);
+  // socket.on('lightning', mouseClicked());
+  
 }
-
 function draw(){
   // background(backgroundColor);
   background('hsl(0,0%, 18%)');
-
   for (var i=0; i<ballArray.length; i++){
     ballArray[i].bounce3();
     ballArray[i].display();
   }
+  
+  //draw clouds
+  for (var j=0; j<clouds.length; j++){
+    clouds[j].display();
+  }
+  
 }
 
 function windowResized() {
@@ -146,7 +138,7 @@ function createBall(pitch){ //used to be (numball)
 
 function createBallLocal(pitch) {
   // for (var i=0; i<numBall; i++){
-    var newBall = new Ball(mouseX, mouseY, pitch+1, pitch1[pitchSet][pitch]);//create a new ball
+    var newBall = new Ball(mouseX, mouseY, pitch+1, pitch1[pitchSetIndex][pitch]);//create a new ball
     ballArray.push(newBall);//put into the array
   // }
   
@@ -162,14 +154,46 @@ function createBallRemote(pitch) {
   socket.emit('ball', pitch);
 }
 
+//Create cloud based on mouse click.
+function createCloud(){ 
+  createCloudLocal();
+  createCloudRemote();
+}
+
+function createCloudLocal(){
+  var newCloud = new cloud (mouseX, mouseY);
+  clouds.push(newCloud);
+   if (clouds.length > 4) {
+    var diff = clouds.length - 4;
+    for (var j=0; j<diff; j++){
+      clouds.shift();
+    }
+  }
+}
+
+function createCloudRemote(){
+  socket.emit('cloud', mouseX, mouseY);
+}
+
+function mouseClicked(){
+  createCloud();
+}
+
 // function mouseClicked(){
-//     if(counter === bgcolor.length-1){
+//     // // if(counter === bgcolor.length-1){
+//     // //   counter = 0;
+//     // // }
+//     // // backgroundColor = bgcolor[counter];
+//     // // counter++;
+    
+//     if(counter === (lt.length)-1){
 //       counter = 0;
 //     }
-//     backgroundColor = bgcolor[counter];
+//     image(lt[counter], 0, 0);
+//     socket.emit("lightning", counter);
+//     console.log(counter);
 //     counter++;
 // }
-
 //Handle keyPressEvent
 function keyPressed(){
   //https://css-tricks.com/snippets/javascript/javascript-keycodes/
@@ -195,13 +219,13 @@ function keyPressed(){
      case 52: {//Number: 4
        createBall(3);
         // playSound(3);
-          // soundKey = 4;
+        // soundKey = 4;
        break;
      }
      case 53: {//Number: 5
        createBall(4);
         // playSound(4);
-          // soundKey = 5;
+        // soundKey = 5;
        break;
      }
      case 54: {//Number: 6
@@ -221,32 +245,38 @@ function keyPressed(){
         while(ballArray.length){
           ballArray.pop();
         }
+        //clear the clouds
+        while(clouds.length){
+          clouds.pop();
+        }
       
         getHue();//change the color
         //TODO: stop the music
         break;
      }
-    case 32: {
-      pitchSet++;
-      if (pitchSet == pitch1.length) {
-        pitchSet = 0;
+    case 32: {//Space
+      pitchSetIndex++;
+      if (pitchSetIndex == pitch1.length) {
+        pitchSetIndex = 0;
       }
       break;
     }
+    // case 18: {//Alt
+      
+    //   createCloud(mouseX, mouseY);
+    //   break;
+    // }
   }
 }
-
 //A Helper function to play sound
 function playSound(pitch){
   pitch.setVolume(0.1);
   pitch.play();//http://p5js.org/reference/#/p5.SoundFile/play
 }
-
 //A Helper function to get a hue value to create mono color 
 function getHue(){
   newHue = floor(random(360));
 }
-
 //A Helper function to create a color with the same hue value
 function changeAllColor(){
     var h = newHue;//get the hue value
@@ -257,7 +287,6 @@ function changeAllColor(){
     var c = color('hsla('+h+','+s+'%,'+l+'%,'+a+')');
     return c;
 }
-
 //A Helper function to create a color with the same hue value
 function changeAllColor(keyColor){
     var h;
@@ -296,12 +325,10 @@ function changeAllColor(keyColor){
     var c = color('hsla('+h+','+s+'%,'+l+'%,'+a+')');
     return c;
 }
-
 //The Ball Constructor
 //Bounce ball with gravity: http://www.openprocessing.org/sketch/47766
 //Bounce ball and change color when hits the edges: http://www.openprocessing.org/sketch/110555
 function Ball(x, y, number, pitch) {
-  //set random starting point
   // var diameter = random(50, 100);
   playSound(pitch); //new plays sound on ball creation 
   this.diameter = 10;
@@ -325,7 +352,6 @@ function Ball(x, y, number, pitch) {
   
   //define the color for the ball
   this.color = changeAllColor(number);
-
     
   this.display = function() {
     fill(this.color);//only fill the color when you create the ball
@@ -333,7 +359,6 @@ function Ball(x, y, number, pitch) {
     ellipse(this.x, this.y, this.diameter, this.diameter);
    
   };
-
   
   this.bounce3 = function(){//http://www.openprocessing.org/sketch/218262
     if (((this.x + vx) > width - radius) || ((this.x) < radius)) {
@@ -352,6 +377,22 @@ function Ball(x, y, number, pitch) {
   }
   //TODO: Collision
   //http://p5play.molleindustria.org/examples/index.html?fileName=collisions4.js
-  
-
+}
+function cloud(x,y){
+  // var intX = this.x/2;
+  this.x = x;
+  this.y = y;
+  // var h = height/2;
+ 
+ 
+ this.display = function(){
+  //simple cloud x, h is starting position
+  fill(200, 200, 255);
+  noStroke();
+  ellipse(this.x + 50, this.y, 50, 50);
+  ellipse(this.x + 20, this.y, 50, 50);
+  ellipse(this.x + 70, -20 + this.y, 50, 50);
+  ellipse(this.x + 35, -30 + this.y, 50, 50);
+  ellipse(this.x, -20 + this.y, 50, 50);
+ };
 }
