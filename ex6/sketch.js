@@ -124,6 +124,7 @@ function draw(){
   //draw clouds
   for (var j=0; j<clouds.length; j++){
     // clouds[j].flash();
+    if(keyIsDown(ALT)){
       clouds[j].flash();
     }   
     clouds[j].display(); 
