@@ -3,14 +3,13 @@ var clouds = [];//create a array for cloud
 var newHue = 100;//preset the hue to a fix value to avoid null exception
 var pitch1 = [];//create a array to store the sound file for pitch 1
 //initiate sound files 
-var do1;
-var re1;
-var mi1;
-var fa1;
-var sol1;
-var la1;
-var til1;
-var pitchSet = 0;
+// var do1;
+// var re1;
+// var mi1;
+// var fa1;
+// var sol1;
+// var la1;
+// var til1;
 // var backgroundColor = 220;
 var counter = 0;
 // var bgcolor = [];
@@ -23,7 +22,9 @@ var counter = 0;
 // var lilac; 
 var SOCKET_URL = 'wss://fierce-plains-17880.herokuapp.com/';
 var TEAM_NAME  = 'dreamcatcher';
-var socket; 
+var socket;
+var currentCloudSound = 7;
+// var currentLightningSound = 12; //FOR LIGHTNING SOUND
 
 //shapes
 
@@ -40,45 +41,22 @@ var lt = [];
 **/
 
 function preload() {
-  var pitchset = [];
-  pitch1.push(pitchset);
   //Sound 
-  do1 = loadSound('music/01do.mov');
-  pitchset.push(do1);
-  re1 = loadSound('music/01re.mov');
-  pitchset.push(re1);
-   mi1 = loadSound('music/01mi.mov');
-  pitchset.push(mi1);
-   fa1 = loadSound('music/01fa.mov');
-  pitchset.push(fa1);
-   sol1 = loadSound('music/01sol.mov');
-  pitchset.push(sol1);
-  la1 = loadSound('music/01la.mov');
-  pitchset.push(la1);
-   ti1 = loadSound('music/01ti.mov');
-  pitchset.push(ti1);
-  
-  //pitchset = [];
-  // pitch1.push(pitchset);
-  // pitchset.push(loadSound('music/'));
-  
-  //Background Color
-  // midnight = color('hsl(255,19%, 25%)');
-  // plum = color('hsl(349, 24%, 35%)');
-  // grey = color('hsl(219, 0%, 19%)');
-  // forest = color('hsl(108, 34%, 37%)');
-  // lightgrey = color('hsl(113, 0%, 73%)');
-  // peach = color ('hsl(22, 100%, 70%)');
-  // lilac = color('hsl(256,37%, 77%)');
-
-  // console.log(midnight); //first color presented
-  // bgcolor.push(plum);
-  // bgcolor.push(grey);
-  // bgcolor.push(forest);
-  // bgcolor.push(lightgrey);
-  // bgcolor.push(peach);
-  // bgcolor.push(lilac);  
-  
+  pitch1.push(loadSound('music/01do.mov')); // 0; ball sounds
+  pitch1.push(loadSound('music/01re.mov'));
+  pitch1.push(loadSound('music/01mi.mov'));
+  pitch1.push(loadSound('music/01fa.mov'));
+  pitch1.push(loadSound('music/01sol.mov'));
+  pitch1.push(loadSound('music/01la.mov'));
+  pitch1.push(loadSound('music/01ti.mov'));
+  pitch1.push(loadSound('music/C1.mov')); // 7; cloud sounds
+  pitch1.push(loadSound('music/C2.mov'));
+  pitch1.push(loadSound('music/C3.mov'));
+  pitch1.push(loadSound('music/C4.mov'));
+  pitch1.push(loadSound('music/C5.mov'));
+  pitch1.push(loadSound('music/L1.mov')); // 12; lightning sounds
+  pitch1.push(loadSound('music/L2.mov'));
+  pitch1.push(loadSound('music/L3.mov'));
   
   var lt1= loadImage("img/lightning-02.svg");
   lt.push(lt1);
@@ -88,7 +66,6 @@ function preload() {
   lt.push(lt3);
   
   // var lt1= loadImage("img/lightnight-02.svg");
-  
 }
 
 /*
@@ -126,7 +103,6 @@ function draw(){
     // clouds[j].flash();
     clouds[j].display(); 
   }
-  
 }
 
 function windowResized() {
@@ -160,7 +136,7 @@ function createBall(pitch){ //used to be (numball)
 
 function createBallLocal(pitch) {
   // for (var i=0; i<numBall; i++){
-    var newBall = new Ball(mouseX, mouseY, pitch+1, pitch1[pitchSet][pitch]);//create a new ball
+    var newBall = new Ball(mouseX, mouseY, pitch+1, pitch1[pitch]);//create a new ball
     ballArray.push(newBall);//put into the array
   // }
   
@@ -187,11 +163,22 @@ function createCloud(x, y){
 
 function createCloudLocal(x, y){
   
-  var newCloud = new cloud (x, y);
+  var newCloud = new cloud (x, y, pitch1[currentCloudSound]);
+  
+  currentCloudSound++;  
+  if (currentCloudSound == 12) {
+    currentCloudSound = 7;
+  }
+    
+  // currentLightningSound++; //PLACE IN var newLightning
+  // if (currentLightningSound == 15){
+  //   currentLightningSOund == 12;
+  // }
+    
   clouds.push(newCloud);
 
-   if (clouds.length > 4) {
-    var diff = clouds.length - 4;
+   if (clouds.length > 5) {
+    var diff = clouds.length - 5;
     for (var j=0; j<diff; j++){
       clouds.shift();
     }
@@ -206,9 +193,6 @@ function createCloudRemote(x, y){
 function mouseClicked(){
   createCloud(mouseX, mouseY);
 }
-
-
-
 
 // function mouseClicked(){
 //     // // if(counter === bgcolor.length-1){
@@ -290,23 +274,20 @@ function keyPressed(){
         break;
      }
     case 32: {//Space
-      pitchSet++;
-      if (pitchSet == pitch1.length) {
-        pitchSet = 0;
+
       }
       break;
     }
-    case 18: {//Alt
-    for(var i=0; i<clouds.length; i++){
-      clouds[i].flash();
-      clouds[i].display();
-    } 
-
-      // createCloud(mouseX, mouseY);
-      break;
-    }
+    // case 18: {//Alt
+    // for(var i=0; i<clouds.length; i++){
+    //   clouds[i].flash();
+    //   clouds[i].display();
+    // } 
+    //   // createCloud(mouseX, mouseY);
+    //   break;
+    // }
   }
-}
+// }
 
 //A Helper function to play sound
 function playSound(pitch){
@@ -427,11 +408,12 @@ function Ball(x, y, number, pitch) {
 
 }
 
-function cloud(x,y){
+function cloud(x,y, pitch){
  
   this.x = x;
   this.y = y;
- 
+  
+  playSound(pitch);
  
  this.display = function(){
   //simple cloud x, h is starting position
