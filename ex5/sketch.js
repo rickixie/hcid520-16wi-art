@@ -85,10 +85,6 @@ function preload(){
 function setup() {
   canvas = createCanvas(windowWidth, windowHeight);
  
-  //default backgroundColor NEW!!!
-  // backgroundColor = color(255, 255, 255);
-  
-  //1. Create ball object
   createBall();
   
 
@@ -96,16 +92,14 @@ function setup() {
 }
 
 function draw() {
-  //setup background color
-  // background('black');
+
   background(backgroundColor);
 
-  // var count = 0;
+
   for (var i=0; i<ballArray.length; i++){
     ballArray[i].bounce3();
-    // ballArray[i].move();
+
     ballArray[i].display();
-    // count++;
   
   }
 
@@ -148,17 +142,11 @@ function mouseClicked(){
 
     if(counter === bgcolor.length-1){
       counter = 0;
-      // i = 0;
     }
-    // console.log(backgroundColor);
+    
     backgroundColor = bgcolor[counter];
     counter++;
  
-    // console.log(backgroundColor);
-  
-  
-  
-  // backgroundColor = color(random(255), random(255), random(255));
 }
 
 //Handle keyPressEvent
@@ -207,24 +195,7 @@ function keyPressed(){
           // soundKey = 7;
        break;
      }
-    // case 56: {//Number: 8
-    //   createBall(8);
-    //     // playSound(0);
-    //     // soundKey = 8;
-       
-    //   break;
-    // }
-    // case 57: {//Number: 9
-    //   createBall(9);
-    //   // playSound(1);
-    //   break;
-    // }
-    //   case 32: {//Number: space
-    //   //change color    
-    //   // getHue();old
-    //   backgroundColor = color(random(255), random(255), random(255));
-    //   break;
-    // }
+  
      
       case 27: {//Number: escape
         //clear the ball array content one by one
@@ -309,8 +280,8 @@ function changeAllColor(keyColor){
 //Bounce ball and change color when hits the edges: http://www.openprocessing.org/sketch/110555
 function Ball(x, y, pitch) {
   //set random starting point
-  // var diameter = random(50, 100);
-  this.diameter = random(10,100);
+  // this.diameter = random(10,100);
+  this.diameter = 50;
   if (x > width - this.diameter || x < this.diameter) {
     x = random(this.diameter, width - this.diameter);
   }
@@ -329,12 +300,6 @@ function Ball(x, y, pitch) {
   //define the color for the ball
   this.color = changeAllColor(pitch+1);
 
-  this.speed = 0.7;
-
-  this.move = function() {
-    this.x += random(-this.speed, this.speed);
-    this.y += random(-this.speed, this.speed);
-  };
     
   this.display = function() {
     fill(this.color);//only fill the color when you create the ball
@@ -343,15 +308,6 @@ function Ball(x, y, pitch) {
    
   };
 
-  //distance
-  var xdistance = this.diameter/2;
-  var ydistance = this.diameter/2;
-  //speed
-  var speedY = 20;
-  var speedX = 20;
-  //direction
-  var ydirection = 1;
-  var xdirection = 1;
   
   this.bounce3 = function(){//http://www.openprocessing.org/sketch/218262
     if (((this.x + vx) > width - radius) || ((this.x) < radius)) {
@@ -371,16 +327,5 @@ function Ball(x, y, pitch) {
   //TODO: Collision
   //http://p5play.molleindustria.org/examples/index.html?fileName=collisions4.js
   
-  this.bounce = function(){
-    if ((this.x+speedX) > width-(this.diameter)/2 || (this.x+speedX) < this.diameter/2) {
-      speedX = -speedX;
-    }
   
-    if ((this.y+speedY) > height-(this.diameter)/2 ||(this.y+speedY)<(this.diameter)/2) {
-      speedY= -speedY;
-    }
-     
-    this.x = this.x + speedX;
-    this.y = this.y + speedY;
-  }
 }
