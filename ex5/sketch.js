@@ -85,6 +85,7 @@ function preload(){
 function setup() {
   canvas = createCanvas(windowWidth, windowHeight);
  
+  introButton();
   createBall();
   
 
@@ -121,6 +122,37 @@ function windowResized() {
     }
   }); 
 }
+
+function introButton(){
+////   make something happen when you mouse over the button:
+//   if (mouseX>30 && mouseX<50 && mouseY>60 && mouseY>80){
+//   menuItem1()
+//   fill(0);
+//   }
+//// initiate the text in the button
+  introText();
+  noFill();
+  stroke(100);
+  rect(width/2 - 250, height/2 - 50 , 500, 160);
+  }
+
+
+
+function introText(){
+  noStroke();
+  textSize(24);
+  textAlign(CENTER);
+  textFont('Arial');
+  fill(100);
+  text("For the mobile experience, log in to", width/2, height/2);
+  fill(120);
+  textSize(24);
+  text("http://goo.gl/iHKcvZ", width/2, height/2 + 40);
+  fill(100);
+  textSize(24);
+  text('on your device, using "dreamcatcher"', width/2, height/2 + 80);
+  }
+
 
 //Create a number of ball based on the keypress value received from keyPressed().
 function createBall(numBall){

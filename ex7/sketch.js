@@ -12,14 +12,17 @@
   var TEAM_NAME  = 'dreamcatcher';
   var socket;
   
-  var currentCloudSound = 7;
-  var currentLightningSound = 12; //FOR LIGHTNING SOUND
+  // var currentCloudSound = 7;
+  // var currentLightningSound = 12; //FOR LIGHTNING SOUND
 
-  var userId =[];
+  // var userId =[];
   var mobileIds = [];
-  var id;
   var mobiletones = [];
   var currentmobiletones = 0;
+
+  //dealing with desktop users
+  var id;
+  var userList = {};
 
   /* preload the sound to use before the program run, 
   * it is cused to handle asynchronous loading of external files. 
@@ -54,7 +57,7 @@
     var lightgrey = color('hsl(113, 0%, 73%)');
     var peach = color ('hsl(22, 100%, 70%)');
     var lilac = color('hsl(256,37%, 77%)');
-  
+    
     bgcolor.push(midnight);
     bgcolor.push(plum);
     bgcolor.push(grey);
@@ -78,8 +81,10 @@
   function setup(){
     canvas = createCanvas(windowWidth, windowHeight);
     frameRate(30);
- 
+    
+    
     socket = io(SOCKET_URL + TEAM_NAME); // Open a socket connection to the server.
+    id = socket.id;
     // Additional setup goes here. E.g., registering socket.on handlers.  
     socket.on('createBall', createBallLocal);
     // socket.on('createCloud', createCloudLocal);
@@ -87,47 +92,33 @@
     //     currentLightningSound = sound;//
     // });
     
+    //desktop users
+    socket.on('list', function (list){
+     userList = list;
+   });
+    
   //MOBILE EVENT
-   socket.emit('sense', {
+  socket.emit('sense', {
     deviceShaken: true,
     deviceMoved: true
-   });
+  });
   socket.on('deviceShaken', deviceShaken);
   socket.on('deviceMoved', deviceMoved);
-    
-    
-  //when someone open a new chat, assignment a ID and store in an array
-   // id = socket.id;
-   // console.log(id);
-  // userId.push(id);
-  // socket.emit('sketchIDConnected',id);
-  //do something when someone close their connection (e.g: hit escape or space bar)
-  //e.g: remove their ID
   
-    
-    // socket.on('connection', function (socket){
-    //   userId.push(socket);
-    //   // socket.emit('connection', socket);
-    //   socket.on('disconnet', function(){
-        
-    //     console.log('Disconnect client!');
-    //     var index = userId.indexOf(socket);
-    //     if(index >-1){
-    //       userId.splice(index, 1);
-    //       // socket.emit('disconnect', socket);
-    //     }
-    //     else{
-    //       // socket.emit('sketchIDDisconnected', "You already left the game. Please refresh to rejoin.")
-    //     }
-    //   });
-    // });
-    
-  }
+  
+}
 
 
-  function draw(){
-    background(backgroundColor);
+function draw(){
+  background(backgroundColor);
     // background('hsl(0,0%, 18%)');
+    if(ballArray.length<=0){//draw instruction when the user first start the session
+      introButton();
+    }
+    
+
+
+
 
     for (var i=0; i<ballArray.length; i++){
       ballArray[i].bounce3();
@@ -154,24 +145,52 @@
     
   }
 
+  function introButton(){
+////   make something happen when you mouse over the button:
+//   if (mouseX>30 && mouseX<50 && mouseY>60 && mouseY>80){
+//   menuItem1()
+//   fill(0);
+//   }
+//// initiate the text in the button
+introText();
+noFill();
+stroke(100);
+rect(width/2 - 250, height/2 - 50 , 500, 160);
+}
 
-  function windowResized() {
-    resizeCanvas(windowWidth, windowHeight);
-    ballArray.forEach(function(element, index, array) {
-      if (element.x > width - element.diameter) {
-        element.x = width - element.diameter;
-      } else if (element.x < element.diameter) {
-        element.x = element.diameter;
-      }
-      
-      if (element.y > height - element.diameter) {
-        element.y = height - element.diameter
-      } else if (element.y < element.diameter) {
-        element.y = element.diameter;
-      }
-    }); 
 
-  }
+
+function introText(){
+  noStroke();
+  textSize(24);
+  textAlign(CENTER);
+  textFont('Arial');
+  fill(100);
+  text("For the mobile experience, log in to", width/2, height/2);
+  fill(120);
+  textSize(24);
+  text("http://goo.gl/iHKcvZ", width/2, height/2 + 40);
+  fill(100);
+  textSize(24);
+  text('on your device, using "dreamcatcher"', width/2, height/2 + 80);
+}
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  ballArray.forEach(function(element, index, array) {
+    if (element.x > width - element.diameter) {
+      element.x = width - element.diameter;
+    } else if (element.x < element.diameter) {
+      element.x = element.diameter;
+    }
+    
+    if (element.y > height - element.diameter) {
+      element.y = height - element.diameter
+    } else if (element.y < element.diameter) {
+      element.y = element.diameter;
+    }
+  }); 
+
+}
 
 
 function deviceShaken() {
@@ -199,20 +218,20 @@ function deviceMoved(data) {
     mobileIds.push(data.mobileID);
     console.log("a new mobile with ID" + data.mobileID);
    mobiletones.push(currentmobiletones);//store the tone in another array
-  console.log("change mobile tone: "+currentmobiletones); 
-    if(currentmobiletones == 6){
-      currentmobiletones = 0;
-    } 
-    else{
-      currentmobiletones++;
-    }    
-  }
+   console.log("change mobile tone: "+currentmobiletones); 
+   if(currentmobiletones == 6){
+    currentmobiletones = 0;
+  } 
+  else{
+    currentmobiletones++;
+  }    
+}
   //create balls when device is landscape
- if(data.deviceOrientation =="landscape" && data.acceleration.x >=3){
+  if(data.deviceOrientation =="landscape" && data.acceleration.x >=3){
   // var pitch = floor(random(0,7)); //assignment a random number between 0 - 6
   console.log("current tone: "+mobiletones[index]);
   createBall(mobiletones[index]);
- }
+}
 
 }
   //Create a number of ball based on the keypress value received from keyPressed().
@@ -222,15 +241,15 @@ function deviceMoved(data) {
   }
 
   function createBallLocal(pitch) {
-  
+    
       //2.20 CHANGE: change the ball's int X and Y from (mouseX, mouseY) to random 
       var newBall = new Ball(floor(random(0,width)), floor(random(0,height)), pitch+1, pitch1[pitch]);//create a new ball
 
       ballArray.push(newBall);//put into the array
 
-    
-    if (ballArray.length > 30) {//limited number of 30 balls
-      var diff = ballArray.length - 30;
+      
+    if (ballArray.length > 50) {//limited number of 50 balls
+      var diff = ballArray.length - 50;
       for (var i=0; i<diff; i++){
         ballArray.shift();
       }
@@ -271,7 +290,7 @@ function deviceMoved(data) {
   //   // createLightning(x,y);
   //   // var newLightning = new lightning (x+35, y-15,pitch1[currentLightningSound]);
   //   // currentLightningSound++;
-    
+  
   //   // if (currentLightningSound == 15){
   //   //   currentLightningSound == 12;
   //   // }
@@ -308,7 +327,7 @@ function deviceMoved(data) {
   //   var newLightning = new lightning (x+35, y-15,pitch1[currentLightningSound]);
   //   currentLightningSound++;
   //   lts.push(newLightning);
-    
+  
   //   if (currentLightningSound == 15){
   //     currentLightningSound == 12;
   //   };
@@ -334,35 +353,32 @@ function deviceMoved(data) {
       }
       case 50: {//Number:2
        createBall(1);
-      
-          break;
-        }
+       
+       break;
+     }
        case 51: {//Number:3
          createBall(2);
-       
-          break;
-        }
+         
+         break;
+       }
        case 52: {//Number: 4
          createBall(3);
-        
-            break;
-          }
+         
+         break;
+       }
        case 53: {//Number: 5
          createBall(4);
          
-            break;
-          }
+         break;
+       }
        case 54: {//Number: 6
          createBall(5);
-          
-
-          break;
-        }
+         break;
+       }
        case 55: {//Number: 7
-         createBall(6);
-        
-            break;
-          }
+         createBall(6);    
+         break;
+       }
        case 27: {//Number: escape
           //stop all played sound
           pitch1.forEach(function(element) {
@@ -377,12 +393,12 @@ function deviceMoved(data) {
             clouds.pop();
           }
           getHue();//change the color
-         
+          
           break;
-      }
+        }
       // case 32: {//when someone leave, press "space"
       // //http://stackoverflow.com/questions/5767325/remove-a-particular-element-from-an-array-in-javascript
-        
+      
       //   var index = userId.indexOf(id);
       //   console.log(userId)
       //   console.log(index);
@@ -395,7 +411,7 @@ function deviceMoved(data) {
       //   }
       // }
     }
-}
+  }
 
   //A Helper function to play sound
   function playSound(pitch){
@@ -409,15 +425,15 @@ function deviceMoved(data) {
   }
 
   //A Helper function to create a color with the same hue value
-  function changeAllColor(){
-      var h = newHue;//get the hue value
-      //http://hslpicker.com/#25742e
-      var s = random(100);  
-      var l = random(40, 90);//avoid the high saturation
-      var a = random(0.5,1); 
-      var c = color('hsla('+h+','+s+'%,'+l+'%,'+a+')');
-      return c;
-    }
+  // function changeAllColor(){
+  //     var h = newHue;//get the hue value
+  //     //http://hslpicker.com/#25742e
+  //     var s = random(100);  
+  //     var l = random(40, 90);//avoid the high saturation
+  //     var a = random(0.5,1); 
+  //     var c = color('hsla('+h+','+s+'%,'+l+'%,'+a+')');
+  //     return c;
+  //   }
 
   //A Helper function to create a color with the same hue value
   function changeAllColor(keyColor){
@@ -425,35 +441,39 @@ function deviceMoved(data) {
     var s = 90;
     switch(keyColor){
       case 1: {//key pressed 1;
-       h = 190;
+       h = 8;//red
        break;
-       }case 2: {//key pressed 2;
-         h = 200; 
-         break;
-       }case 3: {//key pressed 3;
-         h = 210; 
+      }case 2: {//key pressed 2;
+        h = 81; //green
+        break;
+      }case 3: {//key pressed 3;
+         h = 196; //blue
          break;
        }case 4: {//key pressed 4;
-         h = 220; 
+         h = 164; //cyan
          break;
        }case 5: {//key pressed 5;
-         h = 230; 
+         h = 48; //yellow
          break;
        }case 6: {//key pressed 6;
-         h = 240; 
+         h = 23; //orange
          break;
        }case 7: {//key pressed 7;
-         h = 250;
+         h = 227;//dark-blue
          break;
+       }
+      // else{
+
+      // }
     }
-  }
 
       // var h = newHue;//get the hue value
       //http://hslpicker.com/#25742e
-
-      var l = random(40, 90);//avoid the high saturation
+      // var l = 50;
+      var l = random(40, 80);//avoid the high saturation
       var a = random(0.5,1); 
       var c = color('hsla('+h+','+s+'%,'+l+'%,'+a+')');
+      console.log(h);
       return c;
     }
 
@@ -465,7 +485,7 @@ function deviceMoved(data) {
     // var diameter = random(50, 100);
     playSound(pitch); //new plays sound on ball creation 
     // this.diameter = 10;
-    this.diameter = floor(random(10,30)); //old 10, 100
+    this.diameter = floor(random(20,50)); //old 10, 100
     if (x > width - this.diameter || x < this.diameter) {
       x = random(this.diameter, width - this.diameter);
     }
@@ -485,6 +505,7 @@ function deviceMoved(data) {
     
     //define the color for the ball
     this.color = changeAllColor(number);
+    // console.log(this.color);
 
 
     this.display = function() {
@@ -514,82 +535,82 @@ function deviceMoved(data) {
     //http://p5play.molleindustria.org/examples/index.html?fileName=collisions4.js
   }
 
-  function cloud(x,y, pitch){
+  // function cloud(x,y, pitch){
 
-    this.x = x;
-    this.y = y;
-    this.sound = pitch;
-    this.sound.setVolume(0.08);
-    this.sound.loop();//loop the cloud sound 
-    // playSound(pitch);
+  //   this.x = x;
+  //   this.y = y;
+  //   this.sound = pitch;
+  //   this.sound.setVolume(0.08);
+  //   this.sound.loop();//loop the cloud sound 
+  //   // playSound(pitch);
 
-    this.display = function(){
-    //simple cloud x, h is starting position
-    fill(200, 200, 255);
-    noStroke();
-    ellipse(this.x + 50, this.y, 50, 50);
-    ellipse(this.x + 20, this.y, 50, 50);
-    ellipse(this.x + 70, -20 + this.y, 50, 50);
-    ellipse(this.x + 35, -30 + this.y, 50, 50);
-    ellipse(this.x, -20 + this.y, 50, 50);
-    // this.sound.loop();
-    //midpoint --> (this.x+35, this.y-15);
-    };
+  //   this.display = function(){
+  //   //simple cloud x, h is starting position
+  //   fill(200, 200, 255);
+  //   noStroke();
+  //   ellipse(this.x + 50, this.y, 50, 50);
+  //   ellipse(this.x + 20, this.y, 50, 50);
+  //   ellipse(this.x + 70, -20 + this.y, 50, 50);
+  //   ellipse(this.x + 35, -30 + this.y, 50, 50);
+  //   ellipse(this.x, -20 + this.y, 50, 50);
+  //   // this.sound.loop();
+  //   //midpoint --> (this.x+35, this.y-15);
+  // };
 
-    this.getX = function (){
-      return this.x;
-    }
-    this.getY = function (){
-      return this.y;
-    }
-    this.flash = function(){
-      var newLightning = new lightning(this.x+35, this.y-15,pitch1[currentLightningSound]);
-      // console.log(currentLightningSound);
-      newLightning.display();
-      this.display();
-    }
-  }
-
-
-function lightning(x,y, pitch){
-
-  this.x = x;
-  this.y = y;
-  this.sound = pitch;
-  this.sound.setVolume(0.1);
-  this.sound.play(0.001);
-
-
-
-   var a = this.x + random(20,50);
-   var b = this.y + random(60,125);
-   var c = random(-50,-70);
-   var d = random(40,80);
-   var e = random(20,60);
-   var f = random(20,60);
-   var g = random(-20, -50);
-   var h = random (20, 60);
-   
-     // noLoop();
-  // this.flashsound = function(){
-     
-  // this.sound.play();
+  // this.getX = function (){
+  //   return this.x;
   // }
+  // this.getY = function (){
+  //   return this.y;
+  // }
+  // this.flash = function(){
+  //   var newLightning = new lightning(this.x+35, this.y-15,pitch1[currentLightningSound]);
+  //     // console.log(currentLightningSound);
+  //     newLightning.display();
+  //     this.display();
+  //   }
+  // }
+
+
+  // function lightning(x,y, pitch){
+
+  //   this.x = x;
+  //   this.y = y;
+  //   this.sound = pitch;
+  //   this.sound.setVolume(0.1);
+  //   this.sound.play(0.001);
+
+
+
+  //   var a = this.x + random(20,50);
+  //   var b = this.y + random(60,125);
+  //   var c = random(-50,-70);
+  //   var d = random(40,80);
+  //   var e = random(20,60);
+  //   var f = random(20,60);
+  //   var g = random(-20, -50);
+  //   var h = random (20, 60);
+    
+  //    // noLoop();
+  // // this.flashsound = function(){
+   
+  // // this.sound.play();
+  // // }
   
-  this.display = function(){
-     strokeWeight(4);
-     stroke(255, 225 , 50);
-     push();
-     line(this.x, this.y, a, b);
-     push();
-     translate(a, b);
-     line(0, 0, c, d);
-     translate(c, d);
-     line(0, 0, e, f);
-     translate(e, f);
-     line (0, 0, g, h);
-     pop();
+//   this.display = function(){
+//    strokeWeight(4);
+//    stroke(255, 225 , 50);
+//    push();
+//    line(this.x, this.y, a, b);
+//    push();
+//    translate(a, b);
+//    line(0, 0, c, d);
+//    translate(c, d);
+//    line(0, 0, e, f);
+//    translate(e, f);
+//    line (0, 0, g, h);
+//    pop();
 
-   }
+//  }
 
- }
+// }
