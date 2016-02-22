@@ -1,127 +1,25 @@
-<<<<<<< HEAD
-var ballArray = [];//create a array to store the ball
-var clouds = [];//create a array for cloud
-var newHue = 100;//preset the hue to a fix value to avoid null exception
-var pitch1 = [];//create a array to store the sound file for pitch 1
-//initiate sound files 
-// var do1;
-// var re1;
-// var mi1;
-// var fa1;
-// var sol1;
-// var la1;
-// var til1;
-// var backgroundColor = 220;
-var counter = 0;
-// var bgcolor = [];
-// var midnight;
-// var plum;
-// var grey;
-// var forest;
-// var lightgrey;
-// var peach;
-// var lilac; 
-var SOCKET_URL = 'wss://fierce-plains-17880.herokuapp.com/';
-var TEAM_NAME  = 'dreamcatcher';
-var socket;
-var currentCloudSound = 7;
-// var currentLightningSound = 12; //FOR LIGHTNING SOUND
-
-//shapes
-
-var lt = [];
-
-
-
-// var soundKey = 0; causes one tone to be played 
-
-/* preload the sound to use before the program run, 
-* it is cused to handle asynchronous loading of external files. 
-* If a preload function is defined, setup() will wait until 
-* any load calls within have finished. 
-**/
-
-function preload() {
-  //Sound 
-  pitch1.push(loadSound('music/01do.mov')); // 0; ball sounds
-  pitch1.push(loadSound('music/01re.mov'));
-  pitch1.push(loadSound('music/01mi.mov'));
-  pitch1.push(loadSound('music/01fa.mov'));
-  pitch1.push(loadSound('music/01sol.mov'));
-  pitch1.push(loadSound('music/01la.mov'));
-  pitch1.push(loadSound('music/01ti.mov'));
-  pitch1.push(loadSound('music/C1.mov')); // 7; cloud sounds
-  pitch1.push(loadSound('music/C2.mov'));
-  pitch1.push(loadSound('music/C3.mov'));
-  pitch1.push(loadSound('music/C4.mov'));
-  pitch1.push(loadSound('music/C5.mov'));
-  pitch1.push(loadSound('music/L1.mov')); // 12; lightning sounds
-  pitch1.push(loadSound('music/L2.mov'));
-  pitch1.push(loadSound('music/L3.mov'));
-  
-  var lt1= loadImage("img/lightning-02.svg");
-  lt.push(lt1);
-  var lt2= loadImage("img/lightning-03.svg");
-  lt.push(lt2);
-  var lt3= loadImage("img/lightning-04.svg");
-  lt.push(lt3);
-  
-  // var lt1= loadImage("img/lightnight-02.svg");
-}
-
-/*
-* The setup() function is called once when the program starts. 
-* It's used to define initial environment properties such as 
-* screen size and background color and to load media such as 
-* images and fonts as the program starts. 
-* http://p5js.org/reference/#/p5/setup
-*/
-
-function setup(){
-  canvas = createCanvas(windowWidth, windowHeight);
-  frameRate(30);
-  // console.log(lt);
-  socket = io(SOCKET_URL + TEAM_NAME); // Open a socket connection to the server.
-  // Additional setup goes here. E.g., registering socket.on handlers.  
-  socket.on('createBall', createBallLocal);
-  socket.on('createCloud', createCloudLocal);
-  // socket.on('lightning', mouseClicked());
-  
-}
-
-function draw(){
-  // background(backgroundColor);
-  background('hsl(0,0%, 18%)');
-=======
   var ballArray = [];//create a array to store the ball
   var clouds = [];//create a array for cloud
   var lts = [];//create a array for lightning
   var newHue = 100;//preset the hue to a fix value to avoid null exception
   var pitch1 = [];//create a array to store the sound file for pitch 1
-  //initiate sound files 
-  // var do1;
-  // var re1;
-  // var mi1;
-  // var fa1;
-  // var sol1;
-  // var la1;
-  // var til1;
-  // var backgroundColor = 220;
+
+  var backgroundColor;
   var counter = 0;
-  // var bgcolor = [];
-  // var midnight;
-  // var plum;
-  // var grey;
-  // var forest;
-  // var lightgrey;
-  // var peach;
-  // var lilac; 
+  var bgcolor = []; //from ex5
+
   var SOCKET_URL = 'wss://fierce-plains-17880.herokuapp.com/';
   var TEAM_NAME  = 'dreamcatcher';
   var socket;
   
   var currentCloudSound = 7;
   var currentLightningSound = 12; //FOR LIGHTNING SOUND
+
+  var userId =[];
+  var mobileIds = [];
+  var id;
+  var mobiletones = [];
+  var currentmobiletones = 0;
 
   /* preload the sound to use before the program run, 
   * it is cused to handle asynchronous loading of external files. 
@@ -146,8 +44,26 @@ function draw(){
     pitch1.push(loadSound('music/L1.mov')); // 12; lightning sounds
     pitch1.push(loadSound('music/L2.mov'));
     pitch1.push(loadSound('music/L3.mov'));
-    
->>>>>>> master
+
+
+
+    var midnight = color('hsl(255,19%, 25%)');
+    var plum = color('hsl(349, 24%, 35%)');
+    var grey = color('hsl(219, 0%, 19%)');
+    var forest = color('hsl(108, 34%, 37%)');
+    var lightgrey = color('hsl(113, 0%, 73%)');
+    var peach = color ('hsl(22, 100%, 70%)');
+    var lilac = color('hsl(256,37%, 77%)');
+  
+    bgcolor.push(midnight);
+    bgcolor.push(plum);
+    bgcolor.push(grey);
+    bgcolor.push(forest);
+    bgcolor.push(lightgrey);
+    bgcolor.push(peach);
+    bgcolor.push(lilac); 
+
+    backgroundColor = midnight; 
 
   }
 
@@ -166,46 +82,76 @@ function draw(){
     socket = io(SOCKET_URL + TEAM_NAME); // Open a socket connection to the server.
     // Additional setup goes here. E.g., registering socket.on handlers.  
     socket.on('createBall', createBallLocal);
-    socket.on('createCloud', createCloudLocal);
+    // socket.on('createCloud', createCloudLocal);
     // socket.on('lightning', function(sound){
     //     currentLightningSound = sound;//
     // });
     
+  //MOBILE EVENT
+   socket.emit('sense', {
+    deviceShaken: true,
+    deviceMoved: true
+   });
+  socket.on('deviceShaken', deviceShaken);
+  socket.on('deviceMoved', deviceMoved);
+    
+    
+  //when someone open a new chat, assignment a ID and store in an array
+   // id = socket.id;
+   // console.log(id);
+  // userId.push(id);
+  // socket.emit('sketchIDConnected',id);
+  //do something when someone close their connection (e.g: hit escape or space bar)
+  //e.g: remove their ID
+  
+    
+    // socket.on('connection', function (socket){
+    //   userId.push(socket);
+    //   // socket.emit('connection', socket);
+    //   socket.on('disconnet', function(){
+        
+    //     console.log('Disconnect client!');
+    //     var index = userId.indexOf(socket);
+    //     if(index >-1){
+    //       userId.splice(index, 1);
+    //       // socket.emit('disconnect', socket);
+    //     }
+    //     else{
+    //       // socket.emit('sketchIDDisconnected', "You already left the game. Please refresh to rejoin.")
+    //     }
+    //   });
+    // });
+    
   }
-<<<<<<< HEAD
-}
-=======
->>>>>>> master
+
 
   function draw(){
-    // background(backgroundColor);
-    background('hsl(0,0%, 18%)');
+    background(backgroundColor);
+    // background('hsl(0,0%, 18%)');
 
     for (var i=0; i<ballArray.length; i++){
       ballArray[i].bounce3();
       ballArray[i].display();
     }
     
-     
-    if(keyIsDown(ALT)){//only flash the lightning when alt key is holding down
-        for(var i = 0; i<clouds.length; i++){
-          clouds[i].flash();
-        }
-        if(currentLightningSound==14){
-          currentLightningSound=12;
-        }
-        else
-          currentLightningSound++;
-        // socket.emit("lightning", currentLightningSound);
-    } 
-    else{
-      for (var i =0; i <clouds.length; i ++){      
-      clouds[i].display(); 
-      }
+    // if(keyIsDown(ALT)){//only flash the lightning when alt key is holding down
+    //     for(var i = 0; i<clouds.length; i++){
+    //       clouds[i].flash();
+    //     }
+    //     if(currentLightningSound==14){
+    //       currentLightningSound=12;
+    //     }
+    //     else
+    //       currentLightningSound++;
+    //     // socket.emit("lightning", currentLightningSound);
+    // } 
+    // else{
+    //   for (var i =0; i <clouds.length; i ++){      
+    //   clouds[i].display(); 
+    //   }
 
-    }
- 
-   
+    // }
+    
   }
 
 
@@ -227,13 +173,48 @@ function draw(){
 
   }
 
-<<<<<<< HEAD
-function createBallLocal(pitch) {
-  // for (var i=0; i<numBall; i++){
-    var newBall = new Ball(mouseX, mouseY, pitch+1, pitch1[pitch]);//create a new ball
-    ballArray.push(newBall);//put into the array
-  // }
-=======
+
+function deviceShaken() {
+  // ants = [];
+  // ballArray = [];//clear the ball
+
+  //BELOW ARE THE SAME CODE WITH "ESCAPE" KEYPRESSED;
+  //stop all played sound (from ex6)
+  pitch1.forEach(function(element) {
+    element.stop();
+  });
+  //clear the ball array content one by one
+  while(ballArray.length){
+    ballArray.pop();
+  }
+}
+
+function deviceMoved(data) {
+  //if device orientation is portrait, create new balls
+
+  //check if this is a new mobile;
+  // var currentone;
+  var index = mobileIds.indexOf(data.mobileID);
+  if(index == -1){//if this is a new mobile     
+    mobileIds.push(data.mobileID);
+    console.log("a new mobile with ID" + data.mobileID);
+   mobiletones.push(currentmobiletones);//store the tone in another array
+  console.log("change mobile tone: "+currentmobiletones); 
+    if(currentmobiletones == 6){
+      currentmobiletones = 0;
+    } 
+    else{
+      currentmobiletones++;
+    }    
+  }
+  //create balls when device is landscape
+ if(data.deviceOrientation =="landscape" && data.acceleration.x >=3){
+  // var pitch = floor(random(0,7)); //assignment a random number between 0 - 6
+  console.log("current tone: "+mobiletones[index]);
+  createBall(mobiletones[index]);
+ }
+
+}
   //Create a number of ball based on the keypress value received from keyPressed().
   function createBall(pitch){ //used to be (numball)
     createBallLocal(pitch);
@@ -241,9 +222,9 @@ function createBallLocal(pitch) {
   }
 
   function createBallLocal(pitch) {
->>>>>>> master
   
-      var newBall = new Ball(mouseX, mouseY, pitch+1, pitch1[pitch]);//create a new ball
+      //2.20 CHANGE: change the ball's int X and Y from (mouseX, mouseY) to random 
+      var newBall = new Ball(floor(random(0,width)), floor(random(0,height)), pitch+1, pitch1[pitch]);//create a new ball
 
       ballArray.push(newBall);//put into the array
 
@@ -263,128 +244,81 @@ function createBallLocal(pitch) {
 
   //Create cloud based on mouse click.
   function mouseClicked(){
-  createCloud(mouseX, mouseY);
-  }
+    // createCloud(mouseX, mouseY);
 
-  function createCloud(x, y){ 
-    createCloudLocal(x,y);
-    createCloudRemote(x,y);
-  }
-
-
-<<<<<<< HEAD
-function createCloudLocal(x, y){
-  
-  var newCloud = new cloud (x, y, pitch1[currentCloudSound]);
-  
-  currentCloudSound++;  
-  if (currentCloudSound == 12) {
-    currentCloudSound = 7;
-  }
+    //change background color (from ex5)
+    if(counter === bgcolor.length-1){
+      counter = 0;
+    }
     
-  // currentLightningSound++; //PLACE IN var newLightning
-  // if (currentLightningSound == 15){
-  //   currentLightningSOund == 12;
+    backgroundColor = bgcolor[counter];
+    counter++;
+  }
+
+  // function createCloud(x, y){ 
+  //   createCloudLocal(x,y);
+  //   createCloudRemote(x,y);
   // }
+
+
+  // function createCloudLocal(x, y){
+
+  //   var newCloud = new cloud (x, y, pitch1[currentCloudSound]);
+  //   currentCloudSound++;     
+  //   if (currentCloudSound == 12) {
+  //     currentCloudSound = 7;
+  //   }
+  //   // createLightning(x,y);
+  //   // var newLightning = new lightning (x+35, y-15,pitch1[currentLightningSound]);
+  //   // currentLightningSound++;
     
-  clouds.push(newCloud);
+  //   // if (currentLightningSound == 15){
+  //   //   currentLightningSound == 12;
+  //   // }
 
-   if (clouds.length > 5) {
-    var diff = clouds.length - 5;
-    for (var j=0; j<diff; j++){
-      clouds.shift();
-=======
-  function createCloudLocal(x, y){
+  //   clouds.push(newCloud);
+  //   // lts.push(newLightning);
 
-    var newCloud = new cloud (x, y, pitch1[currentCloudSound]);
-    currentCloudSound++;     
-    if (currentCloudSound == 12) {
-      currentCloudSound = 7;
-    }
-    // createLightning(x,y);
-    // var newLightning = new lightning (x+35, y-15,pitch1[currentLightningSound]);
-    // currentLightningSound++;
-    
-    // if (currentLightningSound == 15){
-    //   currentLightningSound == 12;
-    // }
+  //   if (clouds.length > 5) {
+  //     var diff = clouds.length - 5;
+  //     for (var j=0; j<diff; j++){
+  //       // clouds[0].sound.stop();//stop the cloud's sound when it is gone <--didn't work over 5;
+  //       var cloudE = clouds.shift();
+  //       // console.log(cloudE);
+  //       // cloudE.sound.stop();
+  //       // lts.shift();
+  //     }
+  //   }
+  // }
 
-    clouds.push(newCloud);
-    // lts.push(newLightning);
-
-    if (clouds.length > 5) {
-      var diff = clouds.length - 5;
-      for (var j=0; j<diff; j++){
-        // clouds[0].sound.stop();//stop the cloud's sound when it is gone <--didn't work over 5;
-        var cloudE = clouds.shift();
-        // console.log(cloudE);
-        // cloudE.sound.stop();
-        // lts.shift();
-      }
->>>>>>> master
-    }
-  }
-
-  function createCloudRemote(x, y){
-    socket.emit('createCloud', x, y);
-  }
+  // function createCloudRemote(x, y){
+  //   socket.emit('createCloud', x, y);
+  // }
 
 
   //didn't use it
-  function createLightning(x,y){ //used to be (numball)
-    createLightningLocal(x,y);
-    createLightningRemote(x,y);
-  }
-
-<<<<<<< HEAD
-// function mouseClicked(){
-//     // // if(counter === bgcolor.length-1){
-//     // //   counter = 0;
-//     // // }
-//     // // backgroundColor = bgcolor[counter];
-//     // // counter++;
-    
-//     if(counter === (lt.length)-1){
-//       counter = 0;
-//     }
-//     image(lt[counter], 0, 0);
-//     socket.emit("lightning", counter);
-//     console.log(counter);
-//     counter++;
-// }
-
-
-
-
-//Handle keyPressEvent
-function keyPressed(){
-  //https://css-tricks.com/snippets/javascript/javascript-keycodes/
-  switch(keyCode){
-    case 49:{//Number:1
-      createBall(0);
-      // soundKey = 1;
-      // setTimeout(playSound(0), 2000);
-      break;
-    }
-    case 50: {//Number:2
-=======
-  //didn't use it
-  function createLightningLocal(x,y) {
-
-    var newLightning = new lightning (x+35, y-15,pitch1[currentLightningSound]);
-    currentLightningSound++;
-    lts.push(newLightning);
-    
-    if (currentLightningSound == 15){
-      currentLightningSound == 12;
-    };
-    return newLightning;
-  }
+  // function createLightning(x,y){ //used to be (numball)
+  //   createLightningLocal(x,y);
+  //   createLightningRemote(x,y);
+  // }
 
   //didn't use it
-  function createLightningRemote(x,y) {
-   // socket.emit('lightning', x,y);
- }
+  // function createLightningLocal(x,y) {
+
+  //   var newLightning = new lightning (x+35, y-15,pitch1[currentLightningSound]);
+  //   currentLightningSound++;
+  //   lts.push(newLightning);
+    
+  //   if (currentLightningSound == 15){
+  //     currentLightningSound == 12;
+  //   };
+  //   return newLightning;
+  // }
+
+  //didn't use it
+ //  function createLightningRemote(x,y) {
+ //   // socket.emit('lightning', x,y);
+ // }
 
 
 
@@ -399,7 +333,6 @@ function keyPressed(){
         break;
       }
       case 50: {//Number:2
->>>>>>> master
        createBall(1);
       
           break;
@@ -409,28 +342,6 @@ function keyPressed(){
        
           break;
         }
-<<<<<<< HEAD
-      
-        getHue();//change the color
-        //TODO: stop the music
-        break;
-     }
-    case 32: {//Space
-
-      }
-      break;
-    }
-    // case 18: {//Alt
-    // for(var i=0; i<clouds.length; i++){
-    //   clouds[i].flash();
-    //   clouds[i].display();
-    // } 
-    //   // createCloud(mouseX, mouseY);
-    //   break;
-    // }
-  }
-// }
-=======
        case 52: {//Number: 4
          createBall(3);
         
@@ -469,9 +380,22 @@ function keyPressed(){
          
           break;
       }
+      // case 32: {//when someone leave, press "space"
+      // //http://stackoverflow.com/questions/5767325/remove-a-particular-element-from-an-array-in-javascript
+        
+      //   var index = userId.indexOf(id);
+      //   console.log(userId)
+      //   console.log(index);
+      //   if(index >-1){
+      //     userId.splice(index, 1);
+      //     socket.emit('sketchIDDisconnected', id);
+      //   }
+      //   else{
+      //     socket.emit('sketchIDDisconnected', "You already left the game. Please refresh to rejoin.")
+      //   }
+      // }
     }
 }
->>>>>>> master
 
   //A Helper function to play sound
   function playSound(pitch){
@@ -540,8 +464,8 @@ function keyPressed(){
 
     // var diameter = random(50, 100);
     playSound(pitch); //new plays sound on ball creation 
-    this.diameter = 10;
-    // this.diameter = random(1,10); //old 10, 100
+    // this.diameter = 10;
+    this.diameter = floor(random(10,30)); //old 10, 100
     if (x > width - this.diameter || x < this.diameter) {
       x = random(this.diameter, width - this.diameter);
     }
@@ -592,33 +516,6 @@ function keyPressed(){
 
   function cloud(x,y, pitch){
 
-<<<<<<< HEAD
-function cloud(x,y, pitch){
- 
-  this.x = x;
-  this.y = y;
-  
-  playSound(pitch);
- 
- this.display = function(){
-  //simple cloud x, h is starting position
-  fill(200, 200, 255);
-  noStroke();
-  ellipse(this.x + 50, this.y, 50, 50);
-  ellipse(this.x + 20, this.y, 50, 50);
-  ellipse(this.x + 70, -20 + this.y, 50, 50);
-  ellipse(this.x + 35, -30 + this.y, 50, 50);
-  ellipse(this.x, -20 + this.y, 50, 50);
-
-  //midpoint --> (this.x+35, this.y-15);
- };
-
- this.flash = function (){
-  var newLightning = new lightning(this.x+35, this.y-15);
-  newLightning.display();
- }
-}
-=======
     this.x = x;
     this.y = y;
     this.sound = pitch;
@@ -652,7 +549,6 @@ function cloud(x,y, pitch){
       this.display();
     }
   }
->>>>>>> master
 
 
 function lightning(x,y, pitch){
